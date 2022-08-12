@@ -1,0 +1,37 @@
+version: 1  # "The only valid value at present is 1 (from logging cookbook)"
+disable_existing_loggers: false
+
+formatters:
+  standard:
+    format: "%(asctime)s|%(levelname)-8.8s|%(module)-15.15s|%(lineno)-0.3d|%(funcName)-20.20s |%(message)s|"
+    datefmt: '%d/%m/%Y %H:%M:%S'
+  custom_by_deevee:
+    format: "%(asctime)s|%(levelname)-8.8s|%(module)-15.15s|%(lineno)-0.3d|%(funcName)-20.20s |%(message)s|"
+    (): "custom_logging.MilliSecondsFormatter"
+    datefmt: '%d/%m/%Y %H:%M:%S'
+
+handlers:
+  console:  # handler which will log into stdout
+    class: logging.StreamHandler
+    level: WARNING
+    formatter: standard  # Use formatter defined above
+    stream: ext://sys.stdout
+  file:  # handler which will log into file
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    filename: warnings.log
+    formatter: custom_by_deevee  # Use formatter defined above
+    maxBytes: 524288  # connection might be crappy, so limit individual file size
+    backupCount: 10
+    encoding: utf8
+
+root:  # Loggers are organized in hierarchy - this is the root logger config
+  level: DEBUG
+  handlers: [console, file]  # Attaches both handlers defined above
+
+# Create additional loggers below that can be used separately, the logger below can be instanciated by logging.getLogger(mymodule)
+# loggers:  # Defines descendants of root logger
+#   mymodule:  # Logger for "mymodule"
+#     level: DEBUG
+#     handlers: [console, file]  # Will only use "file" handler defined above
+#     propagate: no  # Will not propagate logs to "root" logger
